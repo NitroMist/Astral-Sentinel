@@ -1,6 +1,8 @@
 # Astral Sentinel v1.0.0 · Local Astrology Observatory
 
-A free, open-source, offline-first astrology program running in a local browser window. It independently calculates natal positions and transits with Swiss Ephemeris and provides an *experimental, interpretive* pressure/difficulty index. The index is **not** a forecast of physical danger or a validated predictor of life outcomes.
+A free, open-source, offline-first, sci-fi-themed astrology program running in a local browser window. Inspired by futuristic observatories and planetary surveillance systems, it offers a fun, immersive way to explore astrology through interactive visualizations, natal charts, and planetary transits.
+
+Astral Sentinel independently calculates natal positions and transits using Swiss Ephemeris and provides an *experimental, interpretive* pressure/difficulty index. The experience is designed primarily for entertainment, curiosity, and personal exploration. The index is **not** a forecast of physical danger or a validated predictor of life outcomes.
 
 ## Release 1.0.0
 
