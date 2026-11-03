@@ -1,0 +1,26 @@
+
+# Personal birth charts and observations
+/data/profile.json
+/data/profiles.json
+/data/observations.json
+/data/*.json
+!/data/profile.example.json
+!/data/city_catalog.json
+
+# Python environment and temporary files
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local secrets and settings
+.env
+.env.*
+*.log
+
+# Editor and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
