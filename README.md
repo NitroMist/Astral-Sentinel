@@ -4,6 +4,23 @@ A free, open-source, offline-first, sci-fi-themed astrology program running in a
 
 Astral Sentinel independently calculates natal positions and transits using Swiss Ephemeris and provides an *experimental, interpretive* pressure/difficulty index. The experience is designed primarily for entertainment, curiosity, and personal exploration. The index is **not** a forecast of physical danger or a validated predictor of life outcomes.
 
+
+
+## Screenshots
+
+### Observatory
+![Astral Sentinel Observatory](screenshots/Screenshot%202026-11-03%20at%2003-40-59%20Astral%20Sentinel%20Transit%20Observatory.png)
+
+### Forecast
+![Astral Sentinel Forecast](screenshots/Screenshot%202026-11-03%20at%2003-41-35%20Astral%20Sentinel%20Transit%20Observatory.png)
+
+### Natal Scan
+![Astral Sentinel Natal Scan](screenshots/Screenshot%202026-11-03%20at%2003-42-03%20Astral%20Sentinel%20Transit%20Observatory.png)
+
+### AI Export
+![Astral Sentinel AI Export](screenshots/Screenshot%202026-11-03%20at%2003-42-13%20Astral%20Sentinel%20Transit%20Observatory.png)
+
+
 ## Release 1.0.0
 
 Stabilization release based on v0.2.5. No changes to astronomical ephemeris calculations or interpretive scoring weights. Hardens the local HTTP server against unexpected Host/Origin requests, prevents a stale calculation error from replacing a newer successful status, makes export concurrency guards stricter, and skips hidden-tab canvas painting. Includes test-suite and package hygiene checks. See `RELEASE_NOTES_v1.0.0.md`.
