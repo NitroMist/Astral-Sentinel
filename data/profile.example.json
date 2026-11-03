@@ -1,0 +1,13 @@
+{
+  "label": "DEMO CHART - CREATE YOUR OWN",
+  "birth": {
+    "date": "2000-01-01",
+    "time": "12:00",
+    "timezone": "Europe/London",
+    "latitude": 51.5074,
+    "longitude": -0.1278,
+    "location_label": "London, GB (example coordinates)"
+  },
+  "default_house_system": "placidus",
+  "default_zodiac": "tropical"
+}

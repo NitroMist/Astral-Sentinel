@@ -1,0 +1,5 @@
+# Choose a wheel with no local C/C++ compilation. The original pyswisseph has
+# no CPython 3.12/3.13 Windows wheels; pysweph is its maintained community fork.
+pyswisseph==2.10.3.2; python_version < "3.12"
+pysweph==2.10.3.6; python_version >= "3.12" and python_version < "3.14"
+tzdata>=2025.2

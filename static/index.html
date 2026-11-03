@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07131e">
+  <meta name="description" content="Astral Sentinel: a private local holographic astrology observatory">
+  <title>Astral Sentinel | Transit Observatory</title>
+  <link rel="stylesheet" href="/style.css?v=100">
+  <script defer src="/app.js?v=100"></script>
+  <script defer src="/profiles.js?v=100"></script>
+</head>
+<body>
+<div id="app" class="shell">
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">✧<i></i></span><span><strong>ASTRAL SENTINEL</strong><small>PERSONAL TRANSIT OBSERVATORY <span class="tag">RELEASE 1.0.0</span></small></span></div>
+  <nav class="tabbar" aria-label="Main views">
+    <button class="tab active" data-tab="observatory">◉ <span>OBSERVATORY</span></button>
+    <button class="tab" data-tab="forecast">⌁ <span>FORECAST</span></button>
+    <button class="tab" data-tab="natal">◇ <span>NATAL SCAN</span></button>
+    <button class="tab" data-tab="export">⇧ <span>AI EXPORT</span></button>
+  </nav>
+  <div class="header-right"><div class="clock" id="live-clock">CONNECTING…</div><div class="online" id="online-status"><span class="pulse"></span> LOCAL / OFFLINE</div><div class="time-mode" id="time-mode">● LIVE TRANSITS</div><div class="header-chart" id="header-profile-label" title="Currently selected birth chart">CHART · LOADING</div><button type="button" id="header-return-live" class="header-live hidden" title="Return to current transits">↶ RETURN TO LIVE</button></div>
+</header>
+
+<section class="stage" id="view-observatory">
+  <aside class="left-panel">
+    <section class="panel controls">
+      <div class="panel-heading"><span class="heading-icon">☷</span> DISPLAY MATRIX <span class="heading-dash"></span></div>
+      <div class="panel-body">
+        <label class="toggle-row"><span>ASPECT CONNECTIONS<small>Interplanetary aspect lines</small></span><input type="checkbox" id="toggle-aspects" checked><i class="switch"></i></label>
+        <label class="toggle-row"><span>NATAL OVERLAY<small>Show your birth chart targets</small></span><input type="checkbox" id="toggle-natal" checked><i class="switch"></i></label>
+        <label class="toggle-row"><span>PLANET LABELS<small>Names and zodiac glyphs</small></span><input type="checkbox" id="toggle-labels" checked><i class="switch"></i></label>
+        <label class="toggle-row"><span>ALERT FEED<small>Astrological advisories</small></span><input type="checkbox" id="toggle-alerts" checked><i class="switch"></i></label>
+        <div class="divider"></div>
+        <div class="field-label">HOLOGRAM PROJECTION</div>
+        <div class="segmented"><button class="seg active" data-mode="zodiac">ZODIAC</button><button class="seg" data-mode="solar">SOLAR SYSTEM</button></div>
+        <p class="micro" id="projection-note">Zodiac: angles indicate real geocentric ecliptic longitudes. Radial distances are schematic.</p>
+        <div class="field-label padtop">ASTROLOGICAL HOUSE SYSTEM</div>
+        <select id="house-select" class="select"><option value="placidus">Placidus</option><option value="whole">Whole Sign</option><option value="equal">Equal House</option></select>
+        <div class="field-label padtop" id="house-method-heading">PLACIDUS PLANET PLACEMENT</div>
+        <select id="house-method-select" class="select" aria-label="Placidus house placement method">
+          <option value="longitude">Chart wheel / by cusp (default)</option>
+          <option value="spatial">Advanced / 3D ecliptic latitude</option>
+        </select>
+        <p class="micro" id="house-method-note">Standard chart-wheel placement uses planetary longitude between house cusps.</p>
+        <div class="field-label padtop">ZODIAC REFERENCE</div>
+        <select id="zodiac-select" class="select"><option value="tropical">Tropical / Western</option><option value="sidereal_lahiri">Sidereal / Lahiri</option></select>
+        <div class="divider"></div>
+        <div class="field-label">AUXILIARY POINTS / NATAL TARGETS</div>
+        <label class="toggle-row"><span>SHOW LUNAR POINTS<small>North / South Nodes + Black Moon Lilith</small></span><input type="checkbox" id="toggle-aux" checked><i class="switch"></i></label>
+        <label class="toggle-row"><span>FORTUNE + VERTEX<small>Natal chart markers only</small></span><input type="checkbox" id="toggle-natal-points" checked><i class="switch"></i></label>
+        <label class="toggle-row"><span>CHIRON (OPTIONAL)<small>Requires Swiss asteroid ephemeris file</small></span><input type="checkbox" id="toggle-chiron" checked><i class="switch"></i></label>
+        <label class="toggle-row"><span>AUXILIARY ASPECT LINES<small>Connect nodes, Lilith and other chart points</small></span><input type="checkbox" id="toggle-aux-aspects" checked><i class="switch"></i></label>
+        <div class="field-label padtop">AUXILIARY CONNECTIONS</div>
+        <select id="aux-aspect-filter" class="select" aria-label="Auxiliary connection type">
+          <option value="both">Transit ↔ natal + current sky</option>
+          <option value="natal">Transit ↔ natal only</option>
+          <option value="sky">Current sky only</option>
+        </select>
+        <div class="field-label padtop">AUXILIARY ASPECT ORB</div>
+        <select id="aux-orb-select" class="select" aria-label="Maximum auxiliary aspect orb">
+          <option value="1">Tight · 1°</option>
+          <option value="2" selected>Balanced · 2°</option>
+          <option value="3">Wide · 3°</option>
+        </select>
+        <p class="micro" id="aux-aspect-note">Aspect lines use traditional blue/red/gold geometry with lavender dashes. Aspect line visibility does not affect scoring.</p>
+        <label class="toggle-row"><span>INCLUDE AUXILIARY IN DIFFICULTY<small>Experimental capped influence · 2° scoring orb</small></span><input type="checkbox" id="toggle-aux-scoring" checked><i class="switch"></i></label>
+        <p class="micro" id="aux-scoring-note">Enabled: nodes, Lilith, Fortune, Vertex and optional Chiron contribute a small, capped adjustment. Natal links only; nodal axis counted once.</p>
+        <div class="field-label padtop">LUNAR NODE CALCULATION</div>
+        <select id="node-mode-select" class="select"><option value="mean">Mean lunar nodes</option><option value="true">True / osculating lunar nodes</option></select>
+        <div class="field-label padtop">BLACK MOON LILITH</div>
+        <select id="lilith-mode-select" class="select"><option value="mean">Mean lunar apogee</option><option value="osculating">Osculating / True Lilith</option></select>
+        <p class="micro">◇ Auxiliary points are symbolic chart markers, not extra planets. Their optional influence is independent of the visible point and line filters.</p>
+      </div>
+    </section>
+    <section class="panel auxiliary-registry">
+      <div class="panel-heading"><span class="heading-icon">◇</span> AUXILIARY REGISTRY <span class="heading-dash"></span></div>
+      <div class="panel-body"><div id="aux-registry" class="aux-registry-items"><span class="micro">Awaiting ephemeris…</span></div><p class="micro" id="aux-status">Click any marker to inspect its longitude and calculation method.</p></div>
+    </section>
+    <section class="panel selected-panel">
+      <div class="panel-heading"><span class="heading-icon">⌖</span> TARGET ANALYSIS <span class="heading-dash"></span></div>
+      <div class="panel-body" id="selected-detail"><div class="empty">Select any planet or transit to inspect its signals.</div></div>
+    </section>
+    <section class="panel notes-panel">
+      <div class="panel-heading"><span class="heading-icon">◈</span> LEGEND <span class="heading-dash"></span></div>
+      <div class="panel-body legend"><div><span class="line blue"></span> TRINE / SEXTILE <b>SUPPORT</b></div><div><span class="line red"></span> SQUARE / OPPOSITION <b>TENSION</b></div><div><span class="line gold"></span> CONJUNCTION <b>MIXED</b></div><div><span class="line dotted"></span> TRANSIT TO NATAL <b>OVERLAY</b></div><div><span class="line lavender"></span> AUXILIARY POINT ASPECTS <b>OPTIONAL WEIGHTS</b></div></div>
+    </section>
+  </aside>
+
+  <main class="viewport-column">
+    <section class="observatory panel">
+      <div class="observatory-top"><div><strong>PLANETARY // ASTROLOGICAL SURVEILLANCE</strong><small id="map-subtitle">GEOCENTRIC ECLIPTIC LONGITUDE · TROPICAL</small></div><div class="coordinates">◉ <span id="map-time">SYNCING EPHEMERIS…</span><button type="button" id="observatory-return-live" class="observatory-live hidden" title="Return to current transits">↶ LIVE</button></div></div>
+      <canvas id="sky" role="img" aria-label="Interactive holographic planetary map with transit aspects"></canvas>
+      <div class="center-headsup"><span class="dot cyan"></span><span id="map-mode-label">ZODIAC MAP</span><span class="tiny-pipe">|</span><span id="visible-aspects">0 ASPECT LINKS</span></div>
+      <div class="map-bottom"><span>∠ ORIENTATION · 0° ARIES AT TOP</span><span id="map-hint">CLICK A PLANET TO ANALYZE</span></div>
+      <div class="crosshair ch-1"></div><div class="crosshair ch-2"></div>
+    </section>
+    <section class="planet-strip panel"><div class="panel-heading compact-heading"><span class="heading-icon">◉</span> PLANETARY SIGNAL STRENGTH <span class="heading-dash"></span> <span class="little-note" id="signal-note">TRANSITS TO NATAL TARGETS</span><span class="signal-navigation hidden" id="signal-navigation"><button type="button" id="signal-prev" aria-label="Scroll signal strengths left" title="Previous signals">◀</button><button type="button" id="signal-next" aria-label="Scroll signal strengths right" title="Next signals">▶</button></span></div><div id="signal-scroll" class="signal-scroll" role="region" tabindex="0" aria-label="Planetary and auxiliary signal strengths, horizontally scrollable when auxiliary points are displayed"><div id="planet-status" class="planet-grid"></div></div></section>
+  </main>
+
+  <aside class="right-panel">
+    <section class="panel threat-panel">
+      <div class="panel-heading"><span class="heading-icon">◉</span> CURRENT COSMIC DIFFICULTY <span class="heading-dash"></span></div>
+      <div class="panel-body"><div class="difficulty-line"><div><div class="metric" id="difficulty-num">--<small> / 10</small></div><div class="metric-status" id="difficulty-status">CALIBRATING…</div></div><span class="radar-glyph">⌬</span></div><div class="meter" id="meter"></div><p class="micro" id="scoring-breakdown">Planetary baseline: calculating…</p><p class="micro">Interpretive transit pressure index. Not a literal danger forecast.</p></div>
+    </section>
+    <section class="panel warning-panel">
+      <div class="panel-heading"><span class="heading-icon">⚠</span> MISSION ADVISORIES <span class="heading-dash"></span></div>
+      <div class="panel-body" id="alerts"><div class="empty">Scanning alignments…</div></div>
+    </section>
+    <section class="panel forecast-card">
+      <div class="panel-heading"><span class="heading-icon">⌁</span> TEMPORAL SCANNER <span class="heading-dash"></span></div>
+      <div class="panel-body">
+        <div class="field-label">FORECAST WINDOW</div><div class="segmented" id="horizon-tabs"><button class="seg" data-days="7">7 DAYS</button><button class="seg active" data-days="30">30 DAYS</button><button class="seg" data-days="90">90 DAYS</button></div>
+        <div class="future-stat"><span>LOWEST PRESSURE WINDOW</span><strong id="relief-date">SCANNING</strong></div>
+        <div class="future-stat"><span>HIGHEST PRESSURE WINDOW</span><strong id="pressure-date">SCANNING</strong></div>
+        <canvas id="spark" width="320" height="70" aria-label="Forecast pressure graph"></canvas>
+        <button class="subtle-button wide" id="open-forecast">OPEN DETAILED FORECAST <span>›</span></button>
+      </div>
+    </section>
+    <section class="panel quick-export"><div class="panel-body"><div class="export-info"><strong>EXTERNAL ANALYSIS LINK</strong><small>Portable export · no API key required</small></div><button class="primary-button" id="quick-export">⇧ EXPORT FOR AI</button></div></section>
+  </aside>
+</section>
+
+<section id="view-forecast" class="page-view hidden">
+  <div class="page-heading"><div><span class="kicker">TEMPORAL ANALYSIS</span><h1>Forecast horizon</h1><p>Sampled astrological pressure index. Compare shorter and longer windows without changing your birth details.</p></div><span class="page-icon">⌁</span></div>
+  <div class="page-columns"><section class="panel large-card"><div class="panel-heading">PRESSURE TIMELINE <span class="heading-dash"></span></div><div class="panel-body"><div class="forecast-bar"><div class="segmented"><button data-days="7" class="seg">7 DAYS</button><button data-days="30" class="seg active">30 DAYS</button><button data-days="90" class="seg">90 DAYS</button></div><span id="forecast-range"></span></div><canvas id="forecast-canvas" height="310" aria-label="Interactive pressure timeline. Drag over the graph or use the sample slider to select a date."></canvas>
+      <div class="timeline-console" aria-label="Interactive transit timeline">
+        <div class="timeline-selected"><div><div class="field-label">SELECTED MOMENT</div><strong id="timeline-selected-date">AWAITING FORECAST</strong></div><div class="timeline-selected-right"><div class="field-label">INTERPRETIVE INDEX</div><strong id="timeline-selected-score">—</strong></div></div>
+        <label class="field-label" for="timeline-scrub">SCRUB FORECAST SAMPLES <small id="timeline-selected-count"></small></label>
+        <input id="timeline-scrub" class="range timeline-scrub" type="range" min="0" max="0" step="1" value="0" disabled aria-label="Select forecast sample" />
+        <div class="timeline-actions"><button type="button" class="subtle-button" id="timeline-prev" disabled title="Previous sampled moment">◀</button><button type="button" class="primary-button" id="timeline-inspect" disabled>◉ VIEW MOMENT IN OBSERVATORY</button><button type="button" class="subtle-button" id="timeline-next" disabled title="Next sampled moment">▶</button></div>
+      </div>
+      <p class="micro">Drag or click the graph, or use the slider and arrow keys to inspect sampled moments. Open one in Observatory for exact planetary positions. Green and red show interpretive score, not real-world risk. Short peaks may fall between samples.</p></div></section>
+  <section class="panel large-card"><div class="panel-heading">SIMULATION CONTROLS <span class="heading-dash"></span></div><div class="panel-body"><div class="field-label">COARSE TIME JUMP (DAYS FROM NOW)</div><input type="range" min="-60" max="90" step="1" value="0" id="time-slider" class="range"><div class="range-labels"><span>−60 D</span><b id="time-shift">TODAY</b><span>+90 D</span></div><div class="field-label padtop">CUSTOM DATE / TIME</div><input id="custom-date" type="datetime-local" class="select"><div class="button-row"><button class="primary-button" id="apply-date">LOAD DATE</button><button class="subtle-button" id="return-now">RETURN TO LIVE</button></div><div class="divider"></div><div class="future-stat"><span>CALCULATED MINIMUM</span><strong id="forecast-low">—</strong></div><div class="future-stat"><span>CALCULATED MAXIMUM</span><strong id="forecast-high">—</strong></div><p class="micro">The day-jump and custom-date controls can load moments outside the plotted window. The graph uses 3-, 6-, or 12-hour samples; selected moments are recalculated precisely when loaded.</p><button type="button" class="subtle-button wide log-jump" id="open-observation-log">◈ OPEN OBSERVATION LOG ↓</button></div></section></div>
+  <div id="observation-log-section" class="log-section">
+    <div class="page-heading log-page-heading"><div><span class="kicker">EXPERIENCE / ASTROLOGICAL COMPARISON</span><h2>Observation Log</h2><p>Record what you actually experienced and compare it with the calculated index. All entries remain on this PC unless you export or send one to Joplin.</p></div><span class="page-icon">◈</span></div>
+    <div class="page-columns log-columns">
+      <section class="panel large-card"><div class="panel-heading">◈ NEW OBSERVATION <span class="heading-dash"></span></div><div class="panel-body">
+        <label class="field-label" for="log-date">DATE EXPERIENCED</label>
+        <input type="date" id="log-date" class="select" />
+        <button type="button" id="log-use-chart" class="subtle-button log-use-chart">⌖ USE CURRENT OBSERVATORY MOMENT</button>
+        <p class="micro" id="log-chart-reference">Chart reference will be calculated at noon on the selected date (local time).</p>
+        <div class="field-label padtop">YOUR EXPERIENCED DIFFICULTY <strong class="log-rating-output" id="log-rating-label">5 / 10</strong></div>
+        <input type="range" id="log-rating" class="range" min="1" max="10" step="1" value="5" aria-label="Experienced difficulty from one to ten"/>
+        <div class="range-labels"><span>EASIER</span><span>HARDER</span></div>
+        <label class="field-label padtop" for="log-note">WHAT ACTUALLY HAPPENED?</label>
+        <textarea id="log-note" rows="5" maxlength="12000" placeholder="Your own observations, wins, setbacks, mood, work, privacy, anything you want to compare later…" class="log-textarea"></textarea>
+        <div class="button-row log-actions"><button type="button" id="log-save" class="primary-button">＋ SAVE OBSERVATION</button><span class="micro" id="log-save-status" role="status">Saved locally. Not shared automatically.</span></div>
+        <p class="micro">An observation captures the index and leading aspects calculated for the selected chart moment. The score is interpretive and doesn't predict actual events.</p>
+      </div></section>
+      <section class="panel large-card"><div class="panel-heading">▣ SAVED ENTRIES <span class="heading-dash"></span><small class="log-count" id="log-count">0</small></div><div class="panel-body">
+        <div class="log-export-actions"><button type="button" class="subtle-button" id="log-export-md">↓ EXPORT MARKDOWN</button><button type="button" class="subtle-button" id="log-export-json">↓ BACKUP JSON</button></div>
+        <div class="log-list" id="log-entries"><div class="empty">No observations yet.</div></div>
+        <div class="divider"></div>
+        <div class="field-label">JOPLIN LOCAL CONNECTION</div>
+        <p class="micro">In Joplin, enable Web Clipper and copy the API token from its settings. Notes go into a notebook named “Astral Sentinel Observations”. Your token is used for this session only, never saved in the observation file.</p>
+        <div class="log-joplin-fields"><div><label for="joplin-port" class="field-label">WEB CLIPPER PORT</label><input type="number" min="41184" max="41194" value="41184" id="joplin-port" class="select"></div><div><label for="joplin-token" class="field-label">API TOKEN</label><input type="password" id="joplin-token" class="select" autocomplete="off" placeholder="Paste from Joplin settings"></div></div>
+        <div class="button-row log-actions"><button type="button" class="subtle-button" id="joplin-test">⌁ DETECT JOPLIN</button><span class="micro" id="joplin-status" role="status">Joplin optional. Nothing is sent unless you choose an entry.</span></div>
+      </div></section>
+    </div>
+  </div>
+</section>
+
+<section id="view-natal" class="page-view hidden"><div class="page-heading"><div><span class="kicker">CHART VALIDATION / EPHEMERIS INTEGRITY</span><h1>Natal scan</h1><p>Choose a birth chart or create one from its birth date, local clock time and birthplace. All calculations are independent of existing PDFs.</p></div><span class="page-icon">◇</span></div>
+  <section class="panel profile-panel" id="profile-panel">
+    <div class="panel-heading">◇ BIRTH CHART LIBRARY <span class="heading-dash"></span><span class="little-note">LOCAL / PRIVATE</span></div>
+    <div class="panel-body">
+      <div class="profile-top-row">
+        <div class="profile-current"><label class="field-label" for="profile-select">ACTIVE BIRTH CHART</label><select id="profile-select" class="select" aria-label="Select birth chart"><option>Loading profiles…</option></select></div>
+        <button type="button" class="primary-button" id="profile-new">＋ NEW CHART</button>
+        <button type="button" class="subtle-button" id="profile-edit">✎ EDIT</button>
+        <button type="button" class="subtle-button" id="profile-export">↓ EXPORT</button>
+        <button type="button" class="subtle-button" id="profile-import">↑ IMPORT JSON</button>
+        <button type="button" class="subtle-button profile-delete" id="profile-delete">DELETE</button>
+      </div>
+      <p class="micro" id="profile-summary">Choose a chart to recalculate every observatory reading, forecast, and advisory for that person.</p>
+      <input type="file" id="profile-import-file" accept=".json,application/json" class="hidden" aria-label="Import birth chart JSON">
+      <details id="profile-editor" class="profile-editor">
+        <summary id="profile-editor-title">Create or edit a birth chart</summary>
+        <form id="profile-form" autocomplete="off">
+          <div class="profile-fields">
+            <div><label class="field-label" for="profile-name">CHART NAME / NICKNAME</label><input id="profile-name" maxlength="70" class="select" placeholder="e.g. My Birth Chart" required></div>
+            <div><label class="field-label" for="profile-date">BIRTH DATE</label><input id="profile-date" type="date" min="1900-01-01" max="2100-12-31" class="select" required></div>
+            <div><label class="field-label" for="profile-time">LOCAL BIRTH TIME (24H)</label><input id="profile-time" type="time" step="60" class="select" required></div>
+            <div class="profile-place-search"><label class="field-label" for="profile-city-search">SEARCH A CITY (OPTIONAL · OFFLINE)</label><input id="profile-city-search" class="select" placeholder="Type a city, then select a match…" autocomplete="off"><div id="profile-city-results" class="profile-city-results" role="listbox" aria-label="Matching places"></div></div>
+            <div class="profile-full"><label class="field-label" for="profile-place">BIRTHPLACE LABEL</label><input id="profile-place" class="select" maxlength="120" placeholder="City, region, country"></div>
+            <div><label class="field-label" for="profile-lat">LATITUDE (N + / S −)</label><input id="profile-lat" type="number" min="-90" max="90" step="any" class="select" placeholder="e.g. 51.5074" required></div>
+            <div><label class="field-label" for="profile-lon">LONGITUDE (E + / W −)</label><input id="profile-lon" type="number" min="-180" max="180" step="any" class="select" placeholder="e.g. -0.1278" required></div>
+            <div class="profile-full"><label class="field-label" for="profile-tz">HISTORICAL IANA TIME ZONE</label><input id="profile-tz" class="select" maxlength="100" placeholder="e.g. America/Los_Angeles" required><p class="micro">Selecting a city fills the coordinates and time zone. If your city isn't listed, enter its coordinates and IANA zone manually.</p></div>
+            <div class="profile-full"><label class="field-label" for="profile-fold">CLOCK CHANGE / REPEATED BIRTH HOUR</label><select id="profile-fold" class="select"><option value="">Automatic for normal dates</option><option value="0">First occurrence (before clocks went back)</option><option value="1">Second occurrence (after clocks went back)</option></select><p class="micro">Only needed if the birth time happened twice during a daylight-saving fall-back. Impossible local times are rejected.</p></div>
+          </div>
+          <p class="micro">Exact birth time matters for house cusps and the Ascendant. An approximate time can produce unreliable houses. Times before 1970 may require additional historical verification.</p>
+          <div class="profile-form-actions"><button type="submit" class="primary-button" id="profile-save">＋ CREATE & ACTIVATE CHART</button><button type="button" class="subtle-button" id="profile-cancel">CANCEL</button><span id="profile-status" class="micro" role="status"></span></div>
+        </form>
+      </details>
+      <p class="micro">Charts are saved on this PC in <code>data/profiles.json</code>. The original <code>data/profile.json</code> is left untouched. Exported profiles contain birth details, not copied planetary positions.</p>
+    </div>
+  </section>
+  <div class="page-columns"><section class="panel large-card"><div class="panel-heading">CALCULATED NATAL POSITIONS <span class="heading-dash"></span></div><div class="panel-body"><div id="natal-meta" class="meta-line"></div><div class="table-scroll"><table><thead><tr><th>Body</th><th>Longitude</th><th>Sign</th><th>House</th><th>Motion</th></tr></thead><tbody id="natal-table"></tbody></table></div>
+   <div class="field-label padtop">ADDITIONAL NATAL POINTS</div><div class="table-scroll"><table><thead><tr><th>Point</th><th>Longitude</th><th>Sign</th><th>House</th><th>Method</th></tr></thead><tbody id="natal-aux-table"></tbody></table></div><p class="micro">Nodes and Black Moon Lilith are lunar orbital points. Fortune and Vertex are calculated natal positions. Chiron uses the bundled Swiss asteroid ephemeris file.</p></div></section><section class="panel large-card"><div class="panel-heading">BIRTH DATA VERIFICATION <span class="heading-dash"></span></div><div class="panel-body" id="natal-comparison"><div class="empty">Scanning reference chart…</div></div></section></div>
+</section>
+
+<section id="view-export" class="page-view hidden"><div class="page-heading"><div><span class="kicker">PORTABLE DATA / OPEN FORMAT</span><h1>AI interchange terminal</h1><p>Take the complete calculation to ChatGPT, any local LLM, or a future analysis tool. No account or network request required.</p></div><span class="page-icon">⇧</span></div><div class="page-columns"><section class="panel large-card"><div class="panel-heading">EXPORT CONFIGURATION <span class="heading-dash"></span></div><div class="panel-body"><div class="export-options"><label><input type="checkbox" id="export-positions" checked> Planetary positions and houses</label><label><input type="checkbox" id="export-aspects" checked> Aspect list and interpretation values</label><label><input type="checkbox" id="export-forecast" checked> Forecast samples and relief windows</label><label><input type="checkbox" id="export-verification" checked> Chart discrepancy report</label></div><div class="divider"></div><div class="field-label">FORMATS</div><div class="export-action"><button class="primary-button" id="copy-report">▣ COPY READABLE REPORT</button><button class="subtle-button" id="download-markdown">↓ DOWNLOAD .MD</button><button class="subtle-button" id="download-json">↓ DOWNLOAD .JSON</button></div><div class="feedback" id="export-feedback">Exports are generated on your PC and are only shared if you choose to paste or send them.</div></div></section><section class="panel large-card"><div class="panel-heading">PREVIEW / READABLE REPORT <span class="heading-dash"></span></div><div class="panel-body"><pre id="export-preview">Building report…</pre></div></section></div></section>
+
+<footer class="footer"><span>◈ ASTRAL SENTINEL v1.0.0</span><span>LOCAL-ONLY ENGINE <span class="pipe">//</span> SWISS EPHEMERIS / MOSHIER <span class="pipe">//</span> AGPL-3.0</span><span id="footer-status">AWAITING EPHEMERIS</span></footer>
+<div class="toast hidden" id="toast" role="status"></div>
+</div>
+</body>
+</html>
